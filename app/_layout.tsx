@@ -1,24 +1,44 @@
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
-import { Stack } from 'expo-router';
-import { StatusBar } from 'expo-status-bar';
-import 'react-native-reanimated';
+import { useFonts } from 'expo-font';
+import { LinearGradient } from 'expo-linear-gradient';
+import { Slot } from 'expo-router';
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, StatusBar, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
-export const unstable_settings = {
-  anchor: '(tabs)',
-};
+export default function Layout() {
+  const [fontsLoaded] = useFonts({
+    'Nunito': require('../assets/fonts/Nunito.ttf'),
+  });
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+ 
+
+
+  if (!fontsLoaded) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#2980B9" />
+      </View>
+    );
+  }
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-      </Stack>
-      <StatusBar style="auto" />
-    </ThemeProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+
+      {/* Gradiente no topo */}
+      <LinearGradient
+        colors={['#2980B9', '#8198CF']}
+        style={{
+          height: StatusBar.currentHeight ?? 0,
+          width: '100%',
+          position: 'absolute',
+          top: 0,
+        }}
+      />
+
+      {/* Página atual */}
+      <Slot />
+    </GestureHandlerRootView>
   );
 }
