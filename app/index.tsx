@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useEffect } from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import { Image, StatusBar, StyleSheet, View } from 'react-native';
 
 
 export default function First() {
@@ -10,13 +10,16 @@ export default function First() {
     StatusBar.setBarStyle('dark-content');
 
     setTimeout(()=>{
-        router.replace('/(tabs)')
+        router.replace('/(tabs)/nowPlayingMovies')
     },3000)
   }, []);
 
   return (
     <View style={styles.container}>
-      
+     <Image
+            source={require('../assets/icon.png')}
+           style={{width:300, height:300}}
+          />
     </View>
   );
 }
@@ -24,7 +27,7 @@ export default function First() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E0E8F9',
+    backgroundColor: '#171a21',
     justifyContent: 'center',
     alignItems: 'center',
   },
