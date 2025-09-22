@@ -9,14 +9,14 @@ const scaled = (size: number) => size * scale;
 
 interface HeaderProfileProps {
   title: string;
+  onSearch?: (text: string) => void;
 }
 
-export default function Header({ title }: HeaderProfileProps) {
+export default function Header({ title, onSearch }: HeaderProfileProps) {
   const [searchVisible, setSearchVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const inputRef = useRef<TextInput>(null);
 
-  // Focar no input quando ele aparecer
   useEffect(() => {
     if (searchVisible && inputRef.current) {
       inputRef.current.focus();
@@ -55,7 +55,10 @@ export default function Header({ title }: HeaderProfileProps) {
           <TextInput
             ref={inputRef}
             value={searchText}
-            onChangeText={setSearchText}
+            onChangeText={(text) => {
+              setSearchText(text);
+              if (onSearch) onSearch(text);
+            }}
             placeholder="Pesquisar..."
             placeholderTextColor="#999"
             style={{
@@ -75,6 +78,7 @@ export default function Header({ title }: HeaderProfileProps) {
             onPress={() => {
               setSearchVisible(false);
               setSearchText('');
+              if (onSearch) onSearch('')
             }}
             style={{
               position: 'absolute',
@@ -91,14 +95,14 @@ export default function Header({ title }: HeaderProfileProps) {
         </>
       ) : (
         <>
-        <Text style={{position:'absolute', left:'18%', top:'50%',color:'#ffffff', fontWeight:'bold'}}>Filmes{title}</Text>
+          <Text style={{ position: 'absolute', left: '18%', top: '50%', color: '#ffffff', fontWeight: 'bold' }}>Filmes{title}</Text>
 
-        <TouchableOpacity onPress={() => setSearchVisible(true)} style={{ marginTop: '5%', marginRight: '3%' }}>
-          <MaterialCommunityIcons name="magnify" color={'#25e3bc'} size={20} />
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => setSearchVisible(true)} style={{ marginTop: '5%', marginRight: '3%' }}>
+            <MaterialCommunityIcons name="magnify" color={'#25e3bc'} size={20} />
+          </TouchableOpacity>
         </>
       )}
-      
+
 
     </View>
   );

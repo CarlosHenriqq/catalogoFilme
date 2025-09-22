@@ -31,3 +31,9 @@ export async function getNowPlayingMovies(page = 1) {
     return { page: 1, results: [], total_pages: 1, total_results: 0 };
   }
 }
+export async function searchMovies(query: string, page = 1) {
+  const response = await axios.get(`${BASE_URL}/search/movie`, {
+    params: { api_key: API_KEY, language: "pt-BR", query, page },
+  });
+  return response.data;
+}

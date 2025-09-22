@@ -6,6 +6,7 @@ import { router } from 'expo-router';
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     Dimensions,
     FlatList,
     Image,
@@ -22,37 +23,56 @@ export default function WatchedMovies() {
 
     const [movies, setMovies] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-
+    const [allMovies, setAllMovies] = useState<any[]>([]);
 
     useEffect(() => {
-        async function loadWatchedMovies() {
-            setLoading(true);
-            const stored = await AsyncStorage.getItem('watchedMovies');
-            const watchedMovies = stored ? JSON.parse(stored) : [];
-            setMovies(watchedMovies);
-            setLoading(false);
-        }
         loadWatchedMovies();
     }, []);
 
-    function StarRating({ vote_average }: { vote_average: number }) {
-        const stars = Math.round(vote_average / 2);
-        return (
-            <View style={{ flexDirection: 'row', marginTop: 5 }}>
-                {[...Array(5)].map((_, i) => (
-                    <FontAwesome
-                        key={i}
-                        name={i < stars ? 'star' : 'star-o'}
-                        size={16}
-                        color="#FFD700"
-                        style={{ marginRight: 2 }}
-                    />
-                ))}
-            </View>
+    async function loadWatchedMovies() {
+        setLoading(true);
+        const stored = await AsyncStorage.getItem('watchedMovies');
+        const watchedMovies = stored ? JSON.parse(stored) : [];
+        setMovies(watchedMovies);
+        setAllMovies(watchedMovies); 
+        setLoading(false);
+    }
+
+    async function handleRemoveMovie(movieId) {
+        Alert.alert(
+            "Remover Filme",
+            "Tem certeza que deseja remover este filme da sua lista?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel"
+                },
+                {
+                    text: "Sim",
+                    onPress: async () => {
+                        const updatedMovies = allMovies.filter(movie => movie.id !== movieId);
+                        await AsyncStorage.setItem('watchedMovies', JSON.stringify(updatedMovies));
+                        setMovies(updatedMovies); 
+                        setAllMovies(updatedMovies); 
+                    }
+                }
+            ]
         );
     }
 
-    function MovieItem({ movie }) {
+    function handleSearch(query: string) {
+        if (!query.trim()) {
+            setMovies(allMovies);
+            return;
+        }
+
+        const filtered = allMovies.filter((m) =>
+            m.title.toLowerCase().includes(query.toLowerCase())
+        );
+        setMovies(filtered);
+    }
+
+    function MovieItem({ movie, onRemove }) {
         const [userRating, setUserRating] = useState(0);
 
         useEffect(() => {
@@ -90,7 +110,6 @@ export default function WatchedMovies() {
                 >
                     {movie.title}
                 </Text>
-
                 <Text style={{ color: '#ccc', fontSize: 12, marginTop: 4 }}>
                     Sua nota:
                 </Text>
@@ -106,19 +125,29 @@ export default function WatchedMovies() {
                         </TouchableOpacity>
                     ))}
                 </View>
+                <TouchableOpacity
+                    onPress={() => onRemove(movie.id)}
+                    style={{
+                        position: 'absolute',
+                        top: 5,
+                        right: 5,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        padding: 5,
+                        borderRadius: 20
+                    }}>
+                    <FontAwesome name="trash" size={18} color="#fff" />
+                </TouchableOpacity>
             </View>
         );
     }
 
     return (
         <LinearGradient colors={['#41444dff', '#171a21']} style={{ flex: 1 }}>
-            <Header title=' já assistidos' />
+            <Header title=' já assistidos' onSearch={(text) => handleSearch(text)} />
             <View style={{ flex: 1 }}>
                 {loading ? (
                     <ActivityIndicator size="large" color="#25e3bc" style={{ marginTop: 20 }} />
                 ) : (
-
-
                     <FlatList
                         data={movies}
                         key={`columns-2`}
@@ -126,7 +155,7 @@ export default function WatchedMovies() {
                         keyExtractor={(item) => String(item.id)}
                         contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: scaled(10), margin: '3%' }}
                         columnWrapperStyle={{ justifyContent: 'space-between', gap: scaled(10), marginBottom: scaled(20) }}
-                        renderItem={({ item }) => <MovieItem movie={item} />}
+                        renderItem={({ item }) => <MovieItem movie={item} onRemove={handleRemoveMovie} />}
                         ListEmptyComponent={
                             <Text style={{ color: '#fff', textAlign: 'center', marginTop: 50 }}>
                                 Nenhum filme assistido ainda.
@@ -148,7 +177,6 @@ export default function WatchedMovies() {
                         }
                         style={{ flex: 1 }}
                     />
-
                 )}
             </View>
         </LinearGradient>

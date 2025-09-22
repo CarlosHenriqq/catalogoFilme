@@ -1,10 +1,12 @@
 import Header from '@/components/Header';
+import { FontAwesome } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from 'expo-router';
 import { useEffect, useState } from "react";
 import {
     ActivityIndicator,
+    Alert,
     Dimensions,
     FlatList,
     Image,
@@ -21,42 +23,68 @@ export default function MoviesWillWatch() {
 
     const [movies, setMovies] = useState<any[]>([]);
     const [loading, setLoading] = useState(true);
-
-
+    const [allMovies, setAllMovies] = useState<any[]>([]);
 
     useEffect(() => {
-        async function loadMovies() {
-            setLoading(true);
-            const stored = await AsyncStorage.getItem('willWatchMovies');
-            const loadedMovies = stored ? JSON.parse(stored) : [];
-            setMovies(loadedMovies);
-            setLoading(false);
-        }
         loadMovies();
     }, []);
 
-
-
-
-
-    function MovieItem({ movie }) {
-        const [userRating, setUserRating] = useState(0);
-
-        useEffect(() => {
-            async function loadUserRating() {
-                const storedRating = await AsyncStorage.getItem(`userRating_${movie.id}`);
-                if (storedRating) {
-                    setUserRating(parseInt(storedRating));
+    async function loadMovies() {
+        setLoading(true);
+        const stored = await AsyncStorage.getItem('willWatchMovies');
+        const loadedMovies = stored ? JSON.parse(stored) : [];
+        setMovies(loadedMovies);
+        setAllMovies(loadedMovies);
+        setLoading(false);
+    }
+    
+    async function handleRemoveMovie(movieId) {
+        Alert.alert(
+            "Remover Filme",
+            "Tem certeza que deseja remover este filme da sua lista de 'Quero Assistir'?",
+            [
+                {
+                    text: "Cancelar",
+                    style: "cancel"
+                },
+                {
+                    text: "Sim",
+                    onPress: async () => {
+                        const updatedMovies = allMovies.filter(movie => movie.id !== movieId);
+                        await AsyncStorage.setItem('willWatchMovies', JSON.stringify(updatedMovies));
+                        setMovies(updatedMovies);
+                        setAllMovies(updatedMovies);
+                    }
                 }
-            }
-            loadUserRating();
-        }, []);
+            ]
+        );
+    }
 
-        async function handleRating(star: number) {
-            setUserRating(star);
-            await AsyncStorage.setItem(`userRating_${movie.id}`, String(star));
+    async function handleSearch(query: string) {
+        if (!query.trim()) {
+            loadMovies();
+            return;
         }
 
+        setLoading(true);
+        try {
+            const stored = await AsyncStorage.getItem('willWatchMovies');
+            const allMoviesData = stored ? JSON.parse(stored) : [];
+
+            const filtered = allMoviesData.filter((m) =>
+                m.title.toLowerCase().includes(query.toLowerCase())
+            );
+
+            setMovies(filtered);
+        } catch (error) {
+            console.error("Erro ao buscar filmes:", error);
+            Alert.alert("Erro", "Não foi possível buscar filmes salvos.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    function MovieItem({ movie, onRemove }) {
         return (
             <View style={{ width: '48%', alignItems: 'center' }}>
                 <Image
@@ -77,21 +105,29 @@ export default function MoviesWillWatch() {
                 >
                     {movie.title}
                 </Text>
-
-
+                <TouchableOpacity
+                    onPress={() => onRemove(movie.id)}
+                    style={{
+                        position: 'absolute',
+                        top: 5,
+                        right: 5,
+                        backgroundColor: 'rgba(0,0,0,0.5)',
+                        padding: 5,
+                        borderRadius: 20
+                    }}>
+                    <FontAwesome name="trash" size={18} color="#fff" />
+                </TouchableOpacity>
             </View>
         );
     }
 
     return (
         <LinearGradient colors={['#41444dff', '#171a21']} style={{ flex: 1 }}>
-            <Header title=' Quero Assistir' />
+            <Header title=' Quero Assistir' onSearch={(text) => handleSearch(text)} />
             <View style={{ flex: 1 }}>
                 {loading ? (
                     <ActivityIndicator size="large" color="#25e3bc" style={{ marginTop: 20 }} />
                 ) : (
-
-
                     <FlatList
                         data={movies}
                         key={`columns-2`}
@@ -99,7 +135,7 @@ export default function MoviesWillWatch() {
                         keyExtractor={(item) => String(item.id)}
                         contentContainerStyle={{ paddingBottom: 20, paddingHorizontal: scaled(10), margin: '3%' }}
                         columnWrapperStyle={{ justifyContent: 'space-between', gap: scaled(10), marginBottom: scaled(20) }}
-                        renderItem={({ item }) => <MovieItem movie={item} />}
+                        renderItem={({ item }) => <MovieItem movie={item} onRemove={handleRemoveMovie} />}
                         ListEmptyComponent={
                             <Text style={{ color: '#fff', textAlign: 'center', marginTop: 50 }}>
                                 Nenhum filme marcado como quero assistir ainda.
@@ -121,7 +157,6 @@ export default function MoviesWillWatch() {
                         }
                         style={{ flex: 1 }}
                     />
-
                 )}
             </View>
         </LinearGradient>

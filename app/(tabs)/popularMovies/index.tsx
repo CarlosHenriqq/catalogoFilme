@@ -16,7 +16,7 @@ import {
     View
 } from "react-native";
 import Header from "../../../components/Header";
-import { getPopularMovies } from "../../services/api";
+import { getPopularMovies, searchMovies } from "../../services/api";
 
 // Componente principal da tela
 export default function PopularMovies() {
@@ -29,6 +29,9 @@ export default function PopularMovies() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [search, setSearch] = useState("");
+    const [isSearching, setIsSearching] = useState(false);
+
 
     async function loadMovies(selectedPage = 1) {
         if (loading) return;
@@ -61,7 +64,9 @@ export default function PopularMovies() {
             pages.push(
                 <TouchableOpacity
                     key={i}
-                    onPress={() => loadMovies(i)}
+                    onPress={() =>
+                        isSearching ? handleSearch(search, i) : loadMovies(i)
+                    }
                     style={{
                         padding: 8,
                         marginHorizontal: 4,
@@ -94,8 +99,30 @@ export default function PopularMovies() {
             </View>
         );
     }
+    async function handleSearch(query: string, page = 1) {
+        if (!query.trim()) {
+            setIsSearching(false);
+            loadMovies(1);
+            return;
+        }
 
-    // Componente MovieItem com a lógica corrigida
+        setLoading(true);
+        try {
+            const data = await searchMovies(query, page);
+            setMovies(data.results || []);
+            setPage(data.page);
+            setTotalPages(data.total_pages);
+            setIsSearching(true);
+        } catch (error) {
+            console.error("Erro ao buscar filmes:", error);
+            Alert.alert("Erro", "Não foi possível buscar filmes.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+
+    
     function MovieItem({ movie }) {
 
         const markAsWatched = async () => {
@@ -121,7 +148,7 @@ export default function PopularMovies() {
                     willWatchMovies.push(movie);
                     await AsyncStorage.setItem('willWatchMovies', JSON.stringify(willWatchMovies));
                 }
-                // O alerta de sucesso será mostrado pela função addToCalendar
+                
             } catch (error) {
                 console.log(error);
                 Alert.alert('Erro', 'Não foi possível salvar na sua lista.');
@@ -150,7 +177,7 @@ export default function PopularMovies() {
                     title: `Assistir: ${movie.title}`,
                     startDate: date,
                     endDate: endDate,
-                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Usa o fuso horário do dispositivo
+                    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, 
                 });
 
                 // Alerta de sucesso final, após salvar na lista e no calendário
@@ -162,7 +189,7 @@ export default function PopularMovies() {
             }
         };
 
-        // Nova função que executa as ações em ordem
+     
         const handleConfirmDateAndSave = async (pickedDate: Date) => {
             await markAsWillWatch();
             await addToCalendar(pickedDate);
@@ -177,7 +204,7 @@ export default function PopularMovies() {
                 mode: 'date',
                 minimumDate: new Date(),
                 onChange: (event, selectedDate) => {
-                    if (event.type === 'dismissed') return; // usuário cancelou
+                    if (event.type === 'dismissed') return; 
                     if (!selectedDate) return;
 
                     // Data selecionada, agora abrir HORA
@@ -188,12 +215,12 @@ export default function PopularMovies() {
                         mode: 'time',
                         is24Hour: true,
                         onChange: async (timeEvent, selectedTime) => {
-                            if (timeEvent.type === 'dismissed') return; // cancelou hora
+                            if (timeEvent.type === 'dismissed') return; 
                             if (!selectedTime) return;
 
                             pickedDate.setHours(selectedTime.getHours(), selectedTime.getMinutes());
 
-                            // Agora temos data + hora, podemos salvar
+                           
                             await handleConfirmDateAndSave(pickedDate);
                         },
                     });
@@ -256,7 +283,7 @@ export default function PopularMovies() {
     return (
         <LinearGradient colors={['#41444dff', '#171a21']} style={{ flex: 1 }}>
             <View style={styles.container}>
-                <Header title=' Populares' />
+                <Header title=' Populares' onSearch={(text) => handleSearch(text)} />
                 {loading ? (
                     <ActivityIndicator size="large" color="#25e3bc" style={{ flex: 1, justifyContent: 'center' }} />
                 ) : (

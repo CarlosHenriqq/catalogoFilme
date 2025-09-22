@@ -17,7 +17,7 @@ import {
     View
 } from "react-native";
 import Header from "../../../components/Header";
-import { getNowPlayingMovies } from "../../services/api";
+import { getNowPlayingMovies, searchMovies } from "../../services/api";
 
 export default function PlayingMovies() {
     const { width } = Dimensions.get('window');
@@ -29,6 +29,8 @@ export default function PlayingMovies() {
     const [page, setPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
+    const [search, setSearch] = useState("");
+    const [isSearching, setIsSearching] = useState(false);
 
     async function loadMovies(selectedPage = 1) {
         if (loading) return;
@@ -56,7 +58,9 @@ export default function PlayingMovies() {
             pages.push(
                 <TouchableOpacity
                     key={i}
-                    onPress={() => loadMovies(i)}
+                    onPress={() =>
+                        isSearching ? handleSearch(search, i) : loadMovies(i)
+                    }
                     style={{
                         padding: 8,
                         marginHorizontal: 4,
@@ -90,6 +94,28 @@ export default function PlayingMovies() {
                 </TouchableOpacity>
             </View>
         );
+    }
+
+    async function handleSearch(query: string, page = 1) {
+        if (!query.trim()) {
+            setIsSearching(false);
+            loadMovies(1);
+            return;
+        }
+
+        setLoading(true);
+        try {
+            const data = await searchMovies(query, page);
+            setMovies(data.results || []);
+            setPage(data.page);
+            setTotalPages(data.total_pages);
+            setIsSearching(true);
+        } catch (error) {
+            console.error("Erro ao buscar filmes:", error);
+            Alert.alert("Erro", "Não foi possível buscar filmes.");
+        } finally {
+            setLoading(false);
+        }
     }
 
     // Componente MovieItem
@@ -202,6 +228,7 @@ export default function PlayingMovies() {
             );
         };
 
+
         return (
             <View style={{ flexDirection: 'row', margin: 10, backgroundColor: '#1c212b', padding: 10, borderRadius: 10 }}>
                 <Image
@@ -250,7 +277,7 @@ export default function PlayingMovies() {
     return (
         <LinearGradient colors={['#41444dff', '#171a21']} style={{ flex: 1 }}>
             <View style={styles.container}>
-                <Header title=' em cartaz' />
+                <Header title=' em cartaz' onSearch={(text) => handleSearch(text)} />
 
 
                 {loading ? (
