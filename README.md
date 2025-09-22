@@ -9,10 +9,11 @@ O app permite ver filmes **em cartaz**, **populares** e ainda guardar seus favor
 
 - 📽️ Exibição de filmes **em cartaz** e **populares** via API do TMDb  
 - 🌟 Nota dos filmes exibida em **estrelas**  
-- 📝 Adicione filmes à sua lista: “Já Assistido” ou “Quero assistir”  
+- 📝 Adicione filmes à sua lista: “Já Assistido” ou “Quero assistir”
+- ⭐ Possibilidade de dar a sua nota para o filme.
 - 🖼️ Visualização do **poster** e **título** dos filmes  
 - 🔍 Busca rápida de filmes  
-- 🎨 Layout responsivo com **Header personalizado** e **Dark Theme**
+- 🎨 Layout responsivo com **Header personalizado** 
 
 ---
 
