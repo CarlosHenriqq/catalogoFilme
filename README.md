@@ -1,56 +1,65 @@
-# 🎬 Catálogo de Filmes - Expo App
+🎬 Catálogo de Filmes - Expo App
 
-Este é um aplicativo **React Native** feito com [Expo](https://expo.dev) para explorar o mundo do cinema!  
-O app permite ver filmes **em cartaz**, **populares** e ainda guardar seus favoritos em uma **lista personalizada**.
+Aplicativo React Native desenvolvido com Expo
+ para explorar o mundo do cinema!
+Com ele você pode descobrir os filmes em cartaz, os mais populares, salvar em listas personalizadas e até agendar para assistir depois no seu calendário.
 
----
+🚀 Funcionalidades
 
-## 🚀 Funcionalidades
+📽️ Exibição de filmes em cartaz e populares via API do TMDb
 
-- 📽️ Exibição de filmes **em cartaz** e **populares** via API do TMDb  
-- 🌟 Nota dos filmes exibida em **estrelas**  
-- 📝 Adicione filmes à sua lista: “Já Assistido” ou “Quero assistir”
-- ⭐ Possibilidade de dar a sua nota para o filme.
-- 🖼️ Visualização do **poster** e **título** dos filmes  
-- 🔍 Busca rápida de filmes  
-- 🎨 Layout responsivo com **Header personalizado** 
+🔍 Busca rápida de filmes
 
----
+🖼️ Visualização do poster e título dos filmes
 
-## 🛠️ Começando
+🌟 Nota dos filmes exibida em estrelas
 
-### 1. Instale as dependências
+📝 Crie listas personalizadas:
 
+“✅ Já Assistido”
+
+“⏳ Quero assistir”
+
+⭐ Possibilidade de dar a sua própria nota para o filme
+
+📅 Integração com calendário do dispositivo: agende um lembrete para assistir ao filme
+
+🎨 Layout responsivo com Header personalizado
+
+🎭 Splash screen e ícone customizados: utilizando a logo da empresa com um toque extra de identidade visual
+
+🛠️ Como rodar o projeto
+1. Instale as dependências
 npm install
-npx expo start
-Você verá opções para abrir o app em:
 
-Desenvolvimento com build local
+2. Inicie o app
+npx expo start
+
+
+Você poderá abrir o app em:
 
 Emulador Android (Android Studio)
 
-Simulador iOS (iOS Simulator)
+Simulador iOS (Xcode)
 
-Expo Go – sandbox para testar o app
+Expo Go (sandbox para testar no celular)
 
-Para começar a desenvolver, edite os arquivos dentro do diretório app. Este projeto utiliza file-based routing.
+Build local para desenvolvimento
 
-🆕 Criar um projeto limpo
-Se quiser reiniciar o projeto mantendo o código inicial de exemplo:
+📱 Extras implementados
 
-npm run reset-project
-Isso moverá o código starter para app-example e criará um diretório app em branco para começar do zero.
+Além das funcionalidades principais, este app traz diferenciais:
+
+Calendário integrado para organizar sua agenda de filmes.
+
+Ícone e splash screen personalizados, com a logo da empresa adaptada para dar mais identidade ao projeto.
 
 📚 Aprenda mais
-Documentação do Expo – Fundamentos e guias avançados
 
-Tutorial oficial do Expo – Passo a passo para criar apps que rodam em Android, iOS e web
+Documentação do Expo
+ – fundamentos e guias avançados
 
-🌐 Comunidade
-Participe da comunidade de desenvolvedores criando apps universais:
+TMDb API
+ – API utilizada para buscar os filmes
 
-Expo no GitHub – veja a plataforma open source e contribua
-
-Discord do Expo – converse com outros usuários e tire dúvidas
-
-✨ Divirta-se explorando filmes e criando sua lista de favoritos!
+✨ Divirta-se explorando filmes, criando suas listas e organizando sua própria agenda de cinema!
